@@ -1,3 +1,6 @@
+logger:
+  level: debug
+
 http:
   port: 8080
 
@@ -10,7 +13,7 @@ apiEndpoints:
     host: '*'
     paths: '/decks*'
     methods: ['GET', 'POST', 'PUT', 'DELETE']
-  
+
   cards:
     host: '*'
     paths: 
@@ -18,21 +21,45 @@ apiEndpoints:
       - '/cards*'
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 
+  auth:
+    host: '*'
+    paths: '/auth/*'
+    methods: ['POST']
+
 serviceEndpoints:
   decksService:
     url: 'http://decks-service:4052'
   cardsService:
     url: 'http://card-service:3000'
+  authService:
+    url: 'http://auth-service:8080' 
 
 policies:
+  - jwt
   - proxy
 
 pipelines:
+  public-auth:
+    apiEndpoints:
+      - auth
+    policies:
+      - proxy:
+          action:
+            serviceEndpoint: authService
+            changeOrigin: true
+
   default:
     apiEndpoints:
       - decks
       - cards
     policies:
+      - jwt:
+          action:
+            secretOrPublicKey: 'secreta'
+            algorithms: ['HS256']
+            tokenHeaders: ['Authorization']
+            tokenScheme: 'Bearer'
+            credentialsRequired: true
       - proxy:
           condition:
             name: pathMatch
