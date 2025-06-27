@@ -21,6 +21,13 @@ apiEndpoints:
       - '/cards*'
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 
+  venda:
+    host: '*'
+    paths:
+      - '/venda*'
+      - '/leilao*'
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+
   auth:
     host: '*'
     paths: '/auth/*'
@@ -31,6 +38,8 @@ serviceEndpoints:
     url: 'http://decks-service:4052'
   cardsService:
     url: 'http://card-service:3000'
+  vendaService:
+    url: 'http://venda-service:9455'
   authService:
     url: 'http://auth-service:8080' 
 
@@ -52,6 +61,7 @@ pipelines:
     apiEndpoints:
       - decks
       - cards
+      - venda
     policies:
       - jwt:
           action:
@@ -80,4 +90,18 @@ pipelines:
             pattern: '/cards*'
           action:
             serviceEndpoint: cardsService
+            changeOrigin: true
+      - proxy:
+          condition:
+            name: pathMatch
+            pattern: '/venda*'
+          action:
+            serviceEndpoint: vendaService
+            changeOrigin: true
+      - proxy:
+          condition:
+            name: pathMatch
+            pattern: '/leilao*'
+          action:
+            serviceEndpoint: vendaService
             changeOrigin: true
