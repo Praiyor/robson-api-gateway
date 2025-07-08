@@ -3,6 +3,9 @@ logger:
 
 http:
   port: 8080
+  plugins:
+    prometheus-metrics:
+      path: ./plugins/prometheus-metrics
 
 admin:
   port: 9876
@@ -65,7 +68,7 @@ pipelines:
     policies:
       - jwt:
           action:
-            secretOrPublicKey: 'secreta'
+            secretOrPublicKey: 'robson'
             algorithms: ['HS256']
             tokenHeaders: ['Authorization']
             tokenScheme: 'Bearer'
